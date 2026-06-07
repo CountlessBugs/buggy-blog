@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { NavItemType } from "../navbar/NavTypes";
+  import { maybeBase } from "@/toolkit/path";
 
   interface Props {
     menu?: NavItemType[];
@@ -34,7 +35,7 @@
 
       {#if item.isDropdown && dropboxItems.length > 0}
         <li class="item dropdown">
-          <a href={url} rel="section">
+          <a href={maybeBase(url)} rel="section">
             {#if icon}
               <div
                 class={`ic ${icon} inline-flex justify-center items-center text-xl flex-wrap align-text-bottom mr-2.5`}
@@ -45,7 +46,7 @@
           <ul class="submenu">
             {#each dropboxItems as subItem (subItem.href)}
               <li class="item">
-                <a href={subItem.href} rel="section">
+                <a href={maybeBase(subItem.href)} rel="section">
                   {#if subItem.icon}
                     <div
                       class={`ic ${getMenuIcon(subItem)} inline-flex justify-center items-center text-xl flex-wrap align-text-bottom mr-2.5`}
@@ -59,7 +60,7 @@
         </li>
       {:else}
         <li class="item">
-          <a href={url} rel="section">
+          <a href={maybeBase(url)} rel="section">
             {#if icon}
               <div
                 class={`ic ${icon} inline-flex justify-center items-center text-xl flex-wrap align-text-bottom mr-2.5`}

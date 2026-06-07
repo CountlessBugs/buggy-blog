@@ -2,11 +2,12 @@
 import Layout from "@/layouts/Layout.astro";
 import { getCollection } from "astro:content";
 import { t } from "@/i18n";
+import { withBase } from "@/toolkit/path";
 
 const allPosts = await getCollection("posts");
 const postUrls = allPosts
   .filter((post) => !post.data.draft && !post.data.encrypted)
-  .map((post) => `/posts/${post.id}/`);
+  .map((post) => withBase(`/posts/${post.id}/`));
 
 const pageTitle = t("random.title");
 const msgRedirecting = t("random.redirecting");
@@ -32,12 +33,12 @@ const msgNoScript = t("random.noScript");
         </span>
       </div>
       <p class="msg" id="msg">{msgRedirecting}</p>
-      <a class="home-link hidden" id="home-link" href="/">{msgBackHome}</a>
+      <a class="home-link hidden" id="home-link" href={withBase("/")}>{msgBackHome}</a>
 
       <noscript>
         <div class="noscript-tip">
           <p>{msgNoScript}</p>
-          <a class="home-link" href="/">{msgBackHome}</a>
+          <a class="home-link" href={withBase("/")}>{msgBackHome}</a>
         </div>
       </noscript>
     </div>

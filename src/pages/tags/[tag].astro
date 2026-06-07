@@ -3,6 +3,7 @@ import Layout from "../../layouts/Layout.astro";
 import { getCollection } from "astro:content";
 import { toCategoryHref, toPostHref, toTagSlug } from "@/toolkit/posts/url";
 import { t } from "@/i18n";
+import { withBase } from "@/toolkit/path";
 import "../../styles/collapse.css";
 
 export async function getStaticPaths() {
@@ -62,7 +63,7 @@ function getLastCategory(categories: string[]): string | undefined {
   <div class="wrap">
     <div class="timeline">
       <h2 class="item header">
-        <a href="/tags/">{t("tags.allTags")}</a>
+        <a href={withBase("/tags/")}>{t("tags.allTags")}</a>
         <small>/</small>
         {tag}
         <small>{t("tags.tagged")}</small>

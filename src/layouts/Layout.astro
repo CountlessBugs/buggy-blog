@@ -13,6 +13,7 @@ import "@/styles/view-transition.css";
 import "@vtbag/element-crossing?url";
 
 import themeConfig from "@/theme.config.ts";
+import { withBase } from "@/toolkit/path";
 
 import "@/styles/palette.css";
 import "@/styles/style.css";
@@ -167,7 +168,7 @@ import SearchPage from "@/components/search/SearchPage.svelte";
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href={withBase("/favicon.svg")} />
     <meta name="generator" content={Astro.generator} />
 
     <slot name="head" />

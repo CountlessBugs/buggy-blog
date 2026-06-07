@@ -6,6 +6,7 @@ import {
   normalizeRightSidebarCardOrder,
   truncateRightSidebarText,
 } from "@/toolkit/ui/rightSidebar";
+import { withBase } from "@/toolkit/path";
 import SidebarCalendarPlaceholder from "./SidebarCalendarPlaceholder.astro";
 import AnnouncementContent from "@/content/announcement.md";
 
@@ -251,7 +252,7 @@ const hasRenderedContent =
                 ))}
               </div>
 
-              <a href="/tags/" class="extra-card__footer-link">
+              <a href={withBase("/tags/")} class="extra-card__footer-link">
                 {t("sidebar.tagCloud.browseAll")}
               </a>
             </section>

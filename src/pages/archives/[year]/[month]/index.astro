@@ -65,7 +65,7 @@ function formatDate(date: Date): string {
   <div class="wrap">
     <div class="timeline">
       <h2 class="item header">
-        <a href="/archives/">{t("archive.all")}</a>
+        <a href={`${BASE_URL}archives/`}>{t("archive.all")}</a>
         <small>/</small>
         <a href={`${BASE_URL}archives/${year}/`}>
           {year} 年

@@ -3,6 +3,7 @@ import Layout from "../../layouts/Layout.astro";
 import { getCollection } from "astro:content";
 import { currentLocale, getT } from "@/i18n";
 import { toCategoryHref, toPostHref } from "@/toolkit/posts/url";
+import { withBase } from "@/toolkit/path";
 import "../../styles/collapse.css";
 
 export async function getStaticPaths() {
@@ -103,7 +104,7 @@ let currentSlug = "c";
   <div class="wrap">
     <div class="timeline">
       <h2 class="item header">
-        <a href="/categories/">{t("category.all")}</a>
+        <a href={withBase("/categories/")}>{t("category.all")}</a>
         {
           parentCategories.map((parent) => (
             <>

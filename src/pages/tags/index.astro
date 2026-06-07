@@ -5,6 +5,7 @@ import { generateTagCloud } from "@/toolkit/posts/generateTagCloud";
 import { toTagHref } from "@/toolkit/posts/url";
 import { t } from "@/i18n";
 import themeConfig from "@/theme.config";
+import { withBase } from "@/toolkit/path";
 import "../../styles/tags.css";
 
 // Get all published posts
@@ -55,7 +56,7 @@ const totalTags = tags.length;
   <div class="wrap">
     <div class="tag-cloud-container">
       <h2 class="item header">
-        <a href="/">{t("nav.home")}</a>
+        <a href={withBase("/")}>{t("nav.home")}</a>
         <small>/</small>
         {t("common.total")}
         {totalTags}
