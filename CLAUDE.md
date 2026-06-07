@@ -185,7 +185,7 @@ bun run hyc serve            # 启动本地 CMS（访问 https://hyc.kaitaku.xyz
 
 ## 开发约定
 
-- 语言：代码注释用中文，沟通用中文
+- 语言：代码注释用中文
 - 路由：`trailingSlash: "always"` — 内部链接保留尾部 `/`
 - Svelte 5 runes 风格：`$state` / `$props` / `$effect`
 - 可复用工具放在 `src/toolkit/` 并写单元测试
