@@ -1,0 +1,7 @@
+contentDir: src/posts
+assetsDir: src/assets
+databaseDir: .hyacine
+defaultCategories:
+postExtension:
+  - .md
+assetResolution: standard

@@ -1,0 +1,18 @@
+# 仓库存 LF，工作区用系统默认换行符，避免 CRLF/LF 混用
+* text=auto
+
+# 二进制文件不转换
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.avif binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.wasm binary
+*.zip binary
+*.gz binary
