@@ -6,6 +6,7 @@
   import MenuBar from "./MenuBar.svelte";
   import RightNavBar from "./RightNavBar.svelte";
   import { t } from "@/i18n";
+  import { withBase } from "@/toolkit/path";
 
   interface Props {
     name: string;
@@ -86,7 +87,7 @@
     <RightNavBar>
       <li>
         <a
-          href="/random/"
+          href={withBase("/random/")}
           class="nav-action text-5"
           aria-label={randomPostLabel}
           title={randomPostLabel}

@@ -1,3 +1,5 @@
+import { BASE_URL } from "@/toolkit/path";
+
 function trimSlashes(input: string): string {
   return input.replaceAll(/^\/+|\/+$/g, "");
 }
@@ -30,20 +32,22 @@ export function toTagSlug(name: string): string {
 
 export function toTagHref(name: string): string {
   const slug = toTagSlug(name);
-  return slug ? `/tags/${encodeURIComponent(slug)}/` : "/tags/";
+  return slug ? `${BASE_URL}tags/${encodeURIComponent(slug)}/` : `${BASE_URL}tags/`;
 }
 
 export function toCategoryHref(name: string): string {
   const normalized = (name || "").trim();
-  return normalized ? `/categories/${encodeURIComponent(normalized)}/` : "/categories/";
+  return normalized
+    ? `${BASE_URL}categories/${encodeURIComponent(normalized)}/`
+    : `${BASE_URL}categories/`;
 }
 
 export function toPostHref(idOrSlug: string): string {
   const normalized = trimSlashes(removeMarkdownExtension((idOrSlug || "").trim()));
 
   if (!normalized) {
-    return "/posts/";
+    return `${BASE_URL}posts/`;
   }
 
-  return `/posts/${encodePathSegments(normalized)}/`;
+  return `${BASE_URL}posts/${encodePathSegments(normalized)}/`;
 }

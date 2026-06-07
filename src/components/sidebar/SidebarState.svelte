@@ -1,5 +1,6 @@
 <script lang="ts">
   import { currentLocale, getT } from "@/i18n";
+  import { withBase } from "@/toolkit/path";
 
   interface Props {
     state: {
@@ -21,7 +22,7 @@
     {#if state.posts && state.posts > 0}
       <div class="item px-[15px]">
         <a
-          href="/archives/"
+          href={withBase("/archives/")}
           class="no-underline [border-bottom:none] text-inherit"
         >
           <span class="block text-lg font-semibold text-center"
@@ -36,7 +37,7 @@
     {#if state.categories && state.categories > 0}
       <div class="item px-[15px]">
         <a
-          href="/categories/"
+          href={withBase("/categories/")}
           class="no-underline [border-bottom:none] text-inherit"
         >
           <span class="block text-lg font-semibold text-center"
@@ -50,7 +51,7 @@
     {/if}
     {#if state.tags && state.tags > 0}
       <div class="item px-[15px]">
-        <a href="/tags/" class="no-underline [border-bottom:none] text-inherit">
+        <a href={withBase("/tags/")} class="no-underline [border-bottom:none] text-inherit">
           <span class="block text-lg font-semibold text-center"
             >{state.tags}</span
           >

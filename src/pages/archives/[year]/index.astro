@@ -6,6 +6,7 @@ import { buildArchiveTimeline } from "@/toolkit/posts/buildArchiveTimeline";
 import { toCategoryHref, toPostHref } from "@/toolkit/posts/url";
 import { fmtNum } from "@/toolkit/tools/fmtNum";
 import { t } from "@/i18n";
+import { BASE_URL } from "@/toolkit/path";
 import "../../../styles/collapse.css";
 
 export async function getStaticPaths() {
@@ -67,7 +68,7 @@ function formatDate(date: Date): string {
               <>
                 {showMonthSection && (
                   <h3 class="item section">
-                    <a href={`/archives/${year}/${fmtNum(month)}/`}>
+                    <a href={`${BASE_URL}archives/${year}/${fmtNum(month)}/`}>
                       {month} 月
                     </a>
                     <small>({monthPostCount})</small>

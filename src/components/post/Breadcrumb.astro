@@ -1,5 +1,6 @@
 ---
 import { currentLocale, getT } from "@/i18n";
+import { withBase } from "@/toolkit/path";
 
 interface Props {
   categories?: string[];
@@ -22,7 +23,7 @@ const t = getT(currentLocale);
         <i class="ic i-ri-arrow-right-s-line" />
         {categories.map((cat, index) => {
           const isLast = index === categories.length - 1;
-          const catPath = `/categories/${cat}/`;
+          const catPath = withBase(`/categories/${cat}/`);
 
           if (isLast && isHome) {
             return (

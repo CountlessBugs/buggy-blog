@@ -5,6 +5,7 @@ import { structurePostsByDate } from "@/toolkit/posts/structurePostsByDate";
 import { toCategoryHref, toPostHref } from "@/toolkit/posts/url";
 import { fmtNum } from "@/toolkit/tools/fmtNum";
 import { t } from "@/i18n";
+import { BASE_URL } from "@/toolkit/path";
 import "../../../../styles/collapse.css";
 
 export async function getStaticPaths() {
@@ -66,7 +67,7 @@ function formatDate(date: Date): string {
       <h2 class="item header">
         <a href="/archives/">{t("archive.all")}</a>
         <small>/</small>
-        <a href={`/archives/${year}/`}>
+        <a href={`${BASE_URL}archives/${year}/`}>
           {year} 年
         </a>
         <small>/</small>

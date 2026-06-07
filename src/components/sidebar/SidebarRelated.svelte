@@ -1,5 +1,6 @@
 <script lang="ts">
   import { currentLocale, getT } from "@/i18n";
+  import { withBase } from "@/toolkit/path";
   import type { RelatedPost } from "./SidebarTypes";
 
   interface Props {
@@ -19,7 +20,7 @@
           class={`relative leading-[1.8] pb-2.5 ${post.slug === currentSlug ? "active" : ""}`}
         >
           <a
-            href={`/posts/${post.slug}/`}
+            href={withBase(`/posts/${post.slug}/`)}
             title={post.title}
             class="text-ellipsis whitespace-nowrap overflow-hidden w-full inline-block text-inherit no-underline transition-colors duration-200"
           >

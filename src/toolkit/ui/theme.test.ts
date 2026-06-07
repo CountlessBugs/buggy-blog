@@ -138,23 +138,24 @@ describe("theme helpers", () => {
     const { doc, attrs } = createDocumentMock();
 
     let transitionCalled = false;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+    // oxlint-disable no-unsafe-type-assertion
+    /* eslint-disable @typescript-eslint/no-unsafe-type-assertion */
     (
       doc as Document & { startViewTransition: NonNullable<Document["startViewTransition"]> }
-    ).startViewTransition =
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-      ((callbackOrOptions?: Parameters<NonNullable<Document["startViewTransition"]>>[0]) => {
-        transitionCalled = true;
-        if (typeof callbackOrOptions === "function") {
-          callbackOrOptions();
-        }
+    ).startViewTransition = ((
+      callbackOrOptions?: Parameters<NonNullable<Document["startViewTransition"]>>[0],
+    ) => {
+      transitionCalled = true;
+      if (typeof callbackOrOptions === "function") {
+        callbackOrOptions();
+      }
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-        return {
-          finished: Promise.resolve(),
-        } as any;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-      }) as any;
+      return {
+        finished: Promise.resolve(),
+      } as any;
+    }) as any;
+    /* eslint-enable @typescript-eslint/no-unsafe-type-assertion */
+    // oxlint-enable no-unsafe-type-assertion
 
     const next = toggleThemeWithTransition(doc, win, "light");
     await Promise.resolve();
