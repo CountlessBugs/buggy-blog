@@ -13,7 +13,7 @@ const OLD_TEMPLATE =
   "let p=new Date().toISOString(),m=st(i),h=`---\\ntitle: ${ot(n)}\\ndate: ${p}\\ndraft: ${r}\\n${m}\\n---\\n\\n# ${n}\\n\\n在这里开始写作...\\n`;";
 
 const NEW_TEMPLATE =
-  'let p=new Date(),q=`${p.getFullYear()}-${String(p.getMonth()+1).padStart(2,"0")}-${String(p.getDate()).padStart(2,"0")}`,m=st(i),h=`---\\ntitle: ${ot(n)}\\ndate: ${q}\\nupdated: ${q}\\ndescription: ""\\ntags: []\\n${m}\\ndraft: ${r}\\n---\\n\\n# ${n}\\n\\n在这里开始写作...\\n`;';
+  'let p=new Date(),q=`${p.getFullYear()}-${String(p.getMonth()+1).padStart(2,"0")}-${String(p.getDate()).padStart(2,"0")}T${String(p.getHours()).padStart(2,"0")}:${String(p.getMinutes()).padStart(2,"0")}:${String(p.getSeconds()).padStart(2,"0")}`,m=st(i),h=`---\\ntitle: ${ot(n)}\\ndate: ${q}\\nupdated: ${q}\\ndescription: ""\\ntags: []\\n${m}\\ndraft: ${r}\\n---\\n\\n# ${n}\\n\\n在这里开始写作...\\n`;';
 
 let patched = 0;
 for (const rel of TARGETS) {
