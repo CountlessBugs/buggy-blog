@@ -1,0 +1,216 @@
+---
+title: "软件设计模式介绍（一）—— 工厂模式与抽象工厂模式"
+date: 2026-06-05T18:33:00
+updated: 2026-06-05T18:33:00
+description: "介绍工厂模式与抽象工厂模式"
+tags: ["设计模式", "代码质量"]
+categories: ["编程开发", "软件工程"]
+cover: ../assets/images/covers_posts/cover_design-patterns-part-1.png
+---
+
+软件设计模式是解决软件开发中常见问题时经过验证的、可复用的解决方案。经典的软件设计模式包括 23 种，分为三大类：
+
+- **创建型模式**：工厂模式、抽象工厂模式、单例模式、建造者模式、原型模式
+- **结构型模式**：适配器模式、装饰器模式、外观模式、代理模式、桥接模式、组合模式、享元模式
+- **行为型模式**：策略模式、模板方法模式、观察者模式、访问者模式、状态模式、备忘录模式、迭代器模式、责任链模式、命令模式、中介者模式、解释器模式
+
+本文将介绍两种创建型模式。
+
+软件设计模式是软件设计原则的体现。在阅读本文前，建议先阅读 [软件设计的 SOLID 原则](/buggy-blog/posts/solid-principle/solid-principle/) 了解软件设计的基本原则。
+
+# 创建型模式（Creational Patterns）
+
+创建型模式关注对象的创建，提供隐藏创建逻辑的创建对象方法，从而使调用者更加灵活地创建对象，并降低认知负担。
+
+创建型模式包括五种：**工厂模式**、**抽象工厂模式**、单例模式、建造者模式、原型模式。本文介绍前两种。
+
+## 引子：简单工厂模式
+
+接着上篇的例子，我们继续来设计 Agent 系统。我们现在有一个 `LLMClient` 类，现在要为每个供应商创建一个子类：`ChatGPTClient` `AnthropicClient` `GeminiClient` `DeepSeekClient`……当我们要使用不同供应商的模型时，就需要这样写：
+
+```python
+chatgpt_client = ChatGPTClient(api_key, "gpt-5.5")
+chatgpt_reply = chatgpt_client.send_message(msg)
+
+deepseek_client = DeepSeekClient(api_key, "deepseek-v4-pro")
+deepseek_reply = deepseek_client.send_message(msg)
+```
+
+这显然很不优雅，因为我们在创建每个供应商客户端时，都要先知道对应的类信息，这样**显著增加了认知负担**，而且还**违反了依赖倒置原则**：高层模块（业务逻辑）直接依赖了低层模块（具体的 `LLMClient` 子类），而不是二者都依赖于抽象，使得**代码耦合度提高**。那么怎么解决呢？我们考虑定义一个这样的工厂类：
+
+```python
+class LLMClientFactory:
+    @staticmethod
+    def create(provider: str, api_key: str, model: str) -> LLMClient:
+        """根据供应商名称创建对应的 LLMClient 实例"""
+        if provider == "openai":
+            return ChatGPTClient(api_key, model)
+        elif provider == "anthropic":
+            return AnthropicClient(api_key, model)
+        elif provider == "google":
+            return GeminiClient(api_key, model)
+        elif provider == "deepseek":
+            return DeepSeekClient(api_key, model)
+        else:
+            raise ValueError(f"Unsupported provider: {provider}")
+```
+
+这样一来，业务代码只需要这样写：
+
+```python
+chatgpt_client = LLMClientFactory.create("openai", api_key, "gpt-5.5")
+chatgpt_reply = chatgpt_client.send_message(msg)
+
+deepseek_client = LLMClientFactory.create("deepseek", api_key, "deepseek-v4-pro")
+deepseek_reply = deepseek_client.send_message(msg)
+```
+
+高层模块不再直接依赖具体的 `ChatGPTClient`、`DeepSeekClient` 等低层类，而是只依赖 `LLMClient` 抽象和 `LLMClientFactory` 这个工厂。当需要新增供应商时，只需在工厂方法里加一个 `elif` 分支即可，业务代码无需改动。这就是简单工厂模式。
+
+但是还有一个问题：这个工厂类本身也**违反了开放封闭原则**：当我们需要添加一个新的供应商的时候，我们还需要去修改工厂的 `create()` 函数，添加新的 `elif` 分支。这也就是为什么这个模式没有被列入 23 个设计模式中。为了解决这个问题，我们接下来隆重介绍——
+
+## 工厂模式（Factory Method Pattern）
+
+只需要让**每个类都有自己的工厂类**就好啦！这样在每次添加新的类时，只需要添加一个对应的工厂类，而不需要修改已有的代码，这样就遵循了开放封闭原则。我们这么写：
+
+```python
+from abc import ABC, abstractmethod
+
+
+class LLMClientFactory(ABC):
+    """工厂的抽象基类"""
+    @abstractmethod
+    def create_client(self, api_key: str, model: str) -> LLMClient:
+        pass
+
+
+class ChatGPTClientFactory(LLMClientFactory):
+    def create_client(self, api_key: str, model: str) -> LLMClient:
+        return ChatGPTClient(api_key, model)
+
+
+class AnthropicClientFactory(LLMClientFactory):
+    def create_client(self, api_key: str, model: str) -> LLMClient:
+        return AnthropicClient(api_key, model)
+
+
+class GeminiClientFactory(LLMClientFactory):
+    def create_client(self, api_key: str, model: str) -> LLMClient:
+        return GeminiClient(api_key, model)
+
+
+class DeepSeekClientFactory(LLMClientFactory):
+    def create_client(self, api_key: str, model: str) -> LLMClient:
+        return DeepSeekClient(api_key, model)
+```
+
+你可能会问：那我们调用时不还是要知道这一堆工厂类的类信息吗，**有用在哪？**
+
+但实际上在使用时，业务代码只需要依赖工厂抽象即可：
+
+```python
+def send_with(factory: LLMClientFactory, api_key: str, model: str, msg: str) -> str:
+    client = factory.create_client(api_key, model)
+    return client.send_message(msg)
+
+# 调用方决定用哪个具体工厂
+reply = send_with(ChatGPTClientFactory(), api_key, "gpt-5.5", msg)
+```
+
+当需要新增供应商（比如 `MistralClient`）时，只需新增一个 `MistralClientFactory` 类，**已有的工厂类完全不需要改动**，完美遵循了开放封闭原则。不仅如此，这样做还实现了依赖倒置，把业务逻辑与低层具体的模型客户端类完美解耦了！
+
+其中这一处：
+
+```python
+reply = send_with(ChatGPTClientFactory(), api_key, "gpt-5.5", msg)
+```
+
+被称为**组装层**，只有它才需要知道具体有哪些工厂类。但如果你的项目很简单，不需要这么一个组装层，你写了一堆工厂类之后直接在 `main` 里面这么用：
+
+```python
+chatgpt_client = ChatGPTClientFactory.create("openai", api_key, "gpt-5.5")
+chatgpt_reply = chatgpt_client.send_message(msg)
+
+deepseek_client = DeepSeekClientFactory.create("deepseek", api_key, "deepseek-v4-pro")
+deepseek_reply = deepseek_client.send_message(msg)
+```
+
+那你这个工厂类和没有有什么区别？所以软件设计模式的应用也一定要看具体场景，**因地制宜**！
+
+:::info
+工厂模式会带来额外的对象创建开销，不过因为对象很简单，所以开销可以忽略不计。如果需要大量创建这种工厂类，可以将其设计为**单例**，即这个类在全局只有一个对象，来降低开销。
+:::
+
+## 抽象工厂模式（Abstract Factory Pattern）
+
+如果我们要构造的不是单个对象，而是一个**对象家族**，即一系列相关的对象，一般的工厂模式是搞不定了。这时候就要用到**抽象工厂模式**。
+
+我们现在要把 Agent 接到聊天平台上，但是我们偏不用 OneBot 那样的统一接口层，非要自己实现一整套系统。那么，为了适配不同的聊天平台，我们需要为每个平台准备一套 `PlatformClient` `MessageParser` `MessageSender` 类，分别负责连接/鉴权、消息解析处理、消息发送。这样，在创建对象时，我们就需要一次性创建三个，而且作为这一个子模块的开发者，你怎么保证那些调用者老老实实地创建同一个平台的三个对象呢？万一别人创建了不同平台的对象，然后硬把它们放到一起，你的程序不就炸了？
+
+为了减少这种认知负担，我们需要使用抽象工厂模式：
+
+```python
+from abc import ABC, abstractmethod
+
+# 产品抽象
+class PlatformClient(ABC):
+    @abstractmethod
+    def connect(self, config: dict): pass
+
+class MessageParser(ABC):
+    @abstractmethod
+    def parse(self, raw_msg) -> dict: pass
+
+class MessageSender(ABC):
+    @abstractmethod
+    def send(self, reply: dict): pass
+
+# 具体产品 —— 以 QQ 为例（Discord 等同理）
+class QQClient(PlatformClient):
+    def connect(self, config): ...   # QQ 的鉴权/重连逻辑
+
+class QQMessageParser(MessageParser):
+    def parse(self, raw_msg): ...    # 解析 CQ 码、消息链等
+
+class QQMessageSender(MessageSender):
+    def send(self, reply): ...       # QQ 的富文本格式、频率控制
+
+# 抽象工厂
+class PlatformAdapterFactory(ABC):
+    @abstractmethod
+    def create_client(self, config: dict) -> PlatformClient: pass
+    @abstractmethod
+    def create_message_parser(self) -> MessageParser: pass
+    @abstractmethod
+    def create_message_sender(self) -> MessageSender: pass
+
+# 具体工厂
+class QQAdapterFactory(PlatformAdapterFactory):
+    def create_client(self, config):      return QQClient()
+    def create_message_parser(self):      return QQMessageParser()
+    def create_message_sender(self):      return QQMessageSender()
+
+class DiscordAdapterFactory(PlatformAdapterFactory):
+    def create_client(self, config):      return DiscordClient()
+    def create_message_parser(self):      return DiscordMessageParser()
+    def create_message_sender(self):      return DiscordMessageSender()
+```
+
+使用时，调用方只需拿到一个工厂，就能保证创建出来的三个对象都是同一平台的：
+
+```python
+def bootstrap_agent(factory: PlatformAdapterFactory, config: dict):
+    client = factory.create_client(config)
+    parser = factory.create_message_parser()
+    sender = factory.create_message_sender()
+
+    client.connect(config)
+    # 之后所有操作都用本平台的 client、parser、sender，不会搞混
+
+bootstrap_agent(QQAdapterFactory(), qq_config)
+bootstrap_agent(DiscordAdapterFactory(), discord_config)
+```
+
+现在，每当需要增加一个新的平台（比如 Telegram），只需要新增 `TelegramClient`、`TelegramMessageParser`、`TelegramMessageSender` 以及一个 `TelegramAdapterFactory` 即可，**已有的 QQ 和 Discord 工厂完全不需要改动**——工厂方法模式只能保证单个类的创建符合开放封闭原则，抽象工厂模式则将这个保证扩展到了**一族类**上。
+
+然而，如果产品不止有两级，还有三级甚至更高，比如 `MessageParser` 还被拆成了 `TextParser` 和 `FileDownloader`，像套娃似的，抽象工厂模式就解决不了了，这时就要用**建造者模式**。这个就等以后再介绍吧~

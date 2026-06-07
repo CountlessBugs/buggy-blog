@@ -1,0 +1,272 @@
+---
+title: "软件设计模式介绍（二）—— 适配器模式、装饰器模式、外观模式、代理模式"
+date: 2026-06-06T16:56:00
+updated: 2026-06-06T16:56:00
+description: "介绍适配器模式、装饰器模式、外观模式、代理模式"
+tags: ["设计模式", "代码质量"]
+categories: ["编程开发", "软件工程"]
+cover: ../assets/images/covers_posts/cover_design-patterns-part-2.png
+---
+
+书接上回，我们继续介绍几个基础的**结构型模式**。
+
+# 结构型模式（Structural Patterns）
+
+结构型模式关注**类和对象的组合**，通过改变代码结构来达到**解耦**的目的，增强代码的**可维护性、可扩展性**。
+
+结构型模式包含七种：**适配器模式**、**装饰器模式**、**外观模式**、**代理模式**、桥接模式、组合模式、享元模式。本文将介绍前四种。
+
+## 适配器模式（Adapter Pattern）
+
+适配器模式**将一个类原本的接口转换为客户希望的另一个接口**，使得原本由于接口不兼容而不能一起工作的类可以一起工作。
+
+也就是说，适配器模式**不直接改变一个模块的功能**，而是提供了一套新的**接口**，解决接口不匹配的问题，使得类原有的功能可以适用于所需的新场景。
+
+举个现实世界的例子：手机或平板上的接口一般是 Type-C，没法直接插 USB，为了让手机或平板能插 U 盘或有线鼠标，我们就需要使用一个 OTG 转换头，它能将 USB 头转成 Type-C 头，这就是一个**适配器**。
+
+适配器分为**类适配器**和**对象适配器**：
+
+- **类适配器**：一般通过多重继承来实现，定义一个新的类，**同时继承自被适配类和目标接口**，使被适配类能够适配目标接口。
+- **对象适配器**：适配器直接**持有被适配的对象实例**，通过调用该实例的方法来适配目标接口。可通过**组合或聚合**的方式，使一个适配器和多个被适配对象一起工作。
+
+:::info
+相比之下，**对象适配器更灵活**，满足**组合优于继承原则**（优先采用对象组合而非类继承的方式来达到复用目的，因为继承需要了解基类内部结构，破坏封装，高耦合），并且对象适配器可以**适配任意的子类对象**（里氏替换原则），而类适配器则与被适配类绑定，无法直接替换为被适配类的不同子类。
+:::
+
+我们继续开发 Agent 系统，需要实现识图功能，问题是：目前的 DeepSeek 还不支持多模态，但由于其性价比高，所以很常用。为此，我们要实现“转述”功能：在接收到图片消息时，调用支持多模态的模型，将图片内容转述为文字，再发送给 DeepSeek。我们已经实现了 `ChatGPTClient` `GeminiClient`，它们都继承自 `ImageCapable`，但是这些类中没有转述接口。所以我们需要添加一个适配器，来使其支持转述功能。
+
+```python
+from abc import ABC, abstractmethod
+
+
+# ========== 已有的类层级 ==========
+class ImageCapable(ABC):
+    """支持多模态的接口"""
+    @abstractmethod
+    def send_message(self, image, text):
+        ...
+
+
+class ChatGPTClient(ImageCapable):
+    def send_message(self, image, text):
+        ...
+
+
+class GeminiClient(ImageCapable):
+    def send_message(self, image, text):
+        ...
+
+
+# ========== 目标接口 ==========
+class IImageTranscriber(ABC):
+    @abstractmethod
+    def transcribe(self, image):
+        ...
+
+
+# ========== 对象适配器 ==========
+class ImageTranscriberAdapter(IImageTranscriber):
+    def __init__(self, client):
+        self._client = client  # 持有被适配对象
+
+    def transcribe(self, image):
+        return self._client.send_message(image, "请描述这张图片的内容")
+
+
+# ========== 使用 ==========
+def handle_message(message, transcriber, deepseek):
+    if message.type == "image":
+        text = transcriber.transcribe(message.image)
+        return deepseek.send_message(text)
+    return deepseek.send_message(message.text)
+
+
+# 同一个适配器类，适配不同的子类对象（类适配器做不到这一点）
+gemini_trans = ImageTranscriberAdapter(GeminiClient(api_key="..."))
+chatgpt_trans = ImageTranscriberAdapter(ChatGPTClient(api_key="..."))
+```
+
+## 装饰器模式（Decorator Pattern）
+
+装饰器模式是一种**动态地给一个对象添加额外的职责**的方式，与定义新的子类相比，装饰器会更为灵活。
+
+想象某个对象是一个机器人，而装饰器就像是各种型号的机械臂、电池、摄像头等各种零件。如果你要为每种不同的组合创建一个新的子类，就会遇到**组合爆炸**的问题，这就是为什么装饰器模式比较灵活：你只需要定义各种零件，然后为你的机器人对象依次装配上所需的零件即可。
+
+装饰器模式一般包含以下四个角色：
+
+- **抽象组件（Component）**：定义对象接口，可以为该对象动态添加职责。
+- **具体组件（ConcreteComponent）**：继承自 Component，实现抽象组件定义的接口，是需要被装饰的原始对象。
+- **装饰器抽象类（Decorator）**：继承自 Component，持有组件对象的引用，并保持与组件完全一致的接口，是一个“套壳类”，每个抽象组件一般只需要一个装饰器抽象类。
+- **具体装饰器（ConcreteDecorator）**：继承自 Decorator，为组件添加具体的功能。
+
+定义比较抽象，我们来看具体例子：
+
+刚刚我们实现了两种 `ImageTranscriberAdapter`，但是还没把它们真正装到 `LLMClient` 上。但是，`LLMClient` 有很多种，而且我们现在还需要用于音频转述的 `AudioTranscriberAdapter`，如果直接定义新子类会面临组合爆炸的问题。这时我们采取装饰器模式：`LLMClient` 作为抽象组件，`ChatGPTClient` `DeepSeekClient` 等作为具体组件，我们再定义一个 `LLMClientDecorator` 装饰器抽象类，然后定义两个具体装饰器类 `ImageTranscriberDecorator` `AudioTranscriberDecorator`，这样就可以灵活装配两种不同的转述功能了。
+
+```python
+from abc import ABC, abstractmethod
+
+
+# ========== 装饰器抽象类 ==========
+class LLMClientDecorator(LLMClient):
+    def __init__(self, client):
+        self._client = client  # 持有被装饰的组件
+
+    def send_message(self, text):
+        return self._client.send_message(text)
+
+
+# ========== 具体装饰器 ==========
+class ImageTranscriberDecorator(LLMClientDecorator):
+    def __init__(self, client, transcriber):
+        super().__init__(client)
+        self._transcriber = transcriber
+
+    def send_message(self, message):
+        if message.type == "image":
+            text = self._transcriber.transcribe(message.image)
+            return super().send_message(text)
+        return super().send_message(message.text)
+
+
+class AudioTranscriberDecorator(LLMClientDecorator):
+    def __init__(self, client, transcriber):
+        super().__init__(client)
+        self._transcriber = transcriber
+
+    def send_message(self, message):
+        if message.type == "audio":
+            text = self._transcriber.transcribe(message.audio)
+            return super().send_message(text)
+        return super().send_message(message.text)
+
+
+# ========== 使用 ==========
+# 灵活嵌套：DeepSeek 同时获得图片 + 音频转述能力
+client = ImageTranscriberDecorator(
+    AudioTranscriberDecorator(
+        DeepSeekClient(api_key="..."),
+        audio_transcriber,
+    ),
+    image_transcriber,
+)
+client.send_message(image_msg)  # 图片 → 转述为文字 → DeepSeek
+client.send_message(audio_msg)  # 音频 → 转述为文字 → DeepSeek
+```
+
+可以看到，装饰器抽象类啥也没干，就是给 `LLMClient` 套了层壳。我们真正实现的只有两个具体的装饰器类。并且，这完美符合**开放封闭原则**，如果我们还想添加用于视频转述的 `VideoTranscriberAdapter`，只需要定义一个新的装饰器类即可。这样我们就实现了类的职责的灵活添加，就像加装零件那样自然。
+
+## 外观模式（Facade Pattern）
+
+外观模式是指：为**子系统的一组接口**提供一个**统一的高层接口**，从而让子系统更容易使用。
+
+当我们在使用某个软件的过程中遇到问题时，一定是直接去找客服，而不需要操心具体要让这个公司的哪些部门去负责这个问题。外观模式就是采用这样的思想：客户只需要调用统一的高层接口，而无需关注具体需要调用哪些子系统、如何调用这些子系统。这样就完成了**信息隐藏**：隐藏了子系统的接口和调用细节，让接口变得简单；同时也实现了客户与低层子系统之间的**松耦合**，从而降低系统的复杂度。
+
+这个模式适用于**子系统数量较多且接口较复杂**的场景。如果一个团队只有两三个人，那自然就不需要安排一个客服。
+
+外观模式由两个角色构成：
+- **外观（Facade）**：为客户提供的简单的**高层接口**，它知道哪些子系统应该处理哪些请求，将需求委派给合适的子系统对象。
+- **子系统（Subsystem）**：负责特定功能的**低层模块**，可以独立工作，它**不知道外观的存在**。
+
+我们的 Agent 系统带有记忆功能。每次对话时，Agent 应该先查找记忆系统中与话题相关的记忆，再生成回复，最后判断该轮对话是否有值得记忆的内容，如果有则将其加入记忆中。这样调用起来就会很复杂，因此我们采用外观模式，定义一个外观类 `AgentFacade` 来提供简单的接口完成这一系列操作。
+
+```python
+# ========== 外观类 ==========
+class AgentFacade:
+    def __init__(self, llm_client, memory_manager):
+        self._llm = llm_client
+        self._memory = memory_manager
+
+    def chat(self, user_input):
+        # 1. 查找相关记忆
+        memories = self._memory.search(user_input)
+
+        # 2. 结合记忆生成回复
+        reply = self._llm.send_message(user_input, memories)
+
+        # 3. 判断是否有值得记忆的内容并存储
+        if self._memory.is_worth_remembering(user_input, reply):
+            self._memory.save(user_input, reply)
+
+        return reply
+
+
+# ========== 使用 ==========
+agent = AgentFacade(DeepSeekClient(api_key="..."), MemoryManager())
+reply = agent.chat("我的生日是哪天？")
+```
+
+:::warning
+值得一提的是，外观模式存在违背开放封闭原则的潜在风险：引入新功能有可能需要修改外观类本身。而且，如果设计不当，外观类可能会变成一个“上帝类”：把所有的逻辑都揽在自己身上。这些是使用外观模式时需要注意的点。
+:::
+
+## 代理模式（Proxy Pattern）
+
+代理模式的思想是：为某个对象提供另一个对象作为其“替身”，从而达到**控制访问**的目的。
+
+代理就像是“经纪人”：你想找明星合作时，你不能直接找明星，而是需要找明星的经纪人，在保证合作正常进行的同时也保证了明星不被打扰。
+
+代理模式包含三个角色：
+
+- **抽象主题/接口（Subject）**：定义真实主题和代理的**共同接口**，使得客户可以像访问真实主题一样访问代理。
+- **真实主题（RealSubject）**：真正**执行业务逻辑的对象**，也就是代理“代表”的对象。
+- **代理（Proxy）**：持有真实主题的引用，在将请求转发给真实主题前后做一些**额外的工作**。
+
+看到这个结构，你可能会问：这不就是个装饰器吗？实际上二者的设计意图完全不同：装饰器的作用是增加功能，而代理的作用是**控制访问**。那么你可能又会问：我为啥要对对象加以限制呢？答案是为了优化性能（如懒加载）、保证被访问对象的安全（如权限检查）、隔离职责（将日志等与业务逻辑无关的代码从真实主题中分离）、降低远程访问的复杂度（如包装网络调用代码）等，最终目的是让代码更易理解和维护，降低复杂度。
+
+代理模式有很多种类型：
+
+- **远程代理**：为一个位于不同地址空间的对象提供一个本地代理。（常用于网络通信等）
+- **虚拟代理**：延迟创建开销大的对象，直到真正需要时才创建，也就是懒加载。
+- **缓存代理**：为开销大的运算结果提供临时存储，多次相同调用可以共享同一个结果，避免重复计算开销。
+- **保护代理**：控制对对象的访问权限。
+- **智能引用**：调用真实对象时，代理执行一些额外操作。（比如引用计数、自动释放内存）
+
+Agent 生成回复时需要调用远程 API，这时就可以使用**远程代理**来封装网络通信细节，让客户端像调用本地方法一样使用远程服务，而无需关心连接建立、超时重试、序列化等底层细节。
+
+```python
+from abc import ABC, abstractmethod
+
+
+# ========== 抽象主题 ==========
+class ILLMClient(ABC):
+    @abstractmethod
+    def send_message(self, text):
+        ...
+
+
+# ========== 真实主题 ==========
+class RemoteLLMClient(ILLMClient):
+    def send_message(self, text):
+        # 实际发起 HTTP 请求调用远程 API
+        response = requests.post("https://api.example.com/chat", json={"text": text})
+        return response.json()["reply"]
+
+
+# ========== 远程代理 ==========
+class LLMClientProxy(ILLMClient):
+    def __init__(self, client, max_retries=3):
+        self._client = client
+        self._max_retries = max_retries
+
+    def send_message(self, text):
+        # 在转发请求前后做额外工作：日志、重试、异常处理等
+        for attempt in range(self._max_retries):
+            try:
+                print(f"[代理] 第 {attempt + 1} 次尝试调用远程 API")
+                return self._client.send_message(text)
+            except Exception as e:
+                if attempt == self._max_retries - 1:
+                    raise
+                print(f"[代理] 调用失败，准备重试：{e}")
+
+
+# ========== 使用 ==========
+# 客户端只需面向接口编程，完全不感知网络通信细节
+client: ILLMClient = LLMClientProxy(RemoteLLMClient())
+reply = client.send_message("你好")
+```
+
+# 备注
+
+由于全篇都在讲同一个例子（甚至前两篇也在用这个例子），如果实际开发中真的把所有的设计模式都套上去，难免会出现**过度设计**的问题，反而使系统变得臃肿、复杂。因此，例子仅供参考，重点是理解设计模式的思想。设计模式的使用还是需要灵活判断，只在需要用的地方用，而**不是为了用而用**。
