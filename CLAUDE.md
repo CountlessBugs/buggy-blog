@@ -22,16 +22,16 @@ bun run format       # oxfmt 代码格式化
 
 ## 关键文件
 
-| 文件                          | 用途                                                |
-| ----------------------------- | --------------------------------------------------- |
+| 文件                          | 用途                                               |
+| ----------------------------- | -------------------------------------------------- |
 | `src/theme.config.ts`         | 🌟 主题配置（站点信息、布局、侧边栏、评论、友链等） |
-| `src/content.config.ts`       | 内容集合配置                                        |
-| `src/covers.config.ts`        | 封面图片 URL 列表（多图轮播用）                     |
-| `src/components/Images.astro` | 封面预设表 + 头像导入                               |
-| `astro.config.mjs`            | Astro 配置                                          |
-| `hyacine.yml`                 | HyC 配置                                            |
-| `hyacine.plugin.ts`           | HyC 插件配置                                        |
-| `uno.config.ts`               | UnoCSS 配置                                         |
+| `src/content.config.ts`       | 内容集合配置                                       |
+| `src/covers.config.ts`        | 封面图片 URL 列表（多图轮播用）                    |
+| `src/components/Images.astro` | 封面预设表 + 头像导入                              |
+| `astro.config.mjs`            | Astro 配置                                         |
+| `hyacine.yml`                 | HyC 配置                                           |
+| `hyacine.plugin.ts`           | HyC 插件配置                                       |
+| `uno.config.ts`               | UnoCSS 配置                                        |
 
 ## 主题配置指南 (theme.config.ts)
 
@@ -168,12 +168,14 @@ home: { pageSize: 5, selectedCategories: [{ name: "Tutorial" }] },
 ### HyC CLI
 
 ```bash
-bun add @hyacine/cli -g    # 全局安装
-hyc new "标题"              # 新建文章
-hyc publish "slug"          # 发布文章
-hyc sync                    # 同步内容
-hyc serve                   # 启动本地 CMS（访问 https://hyc.kaitaku.xyz）
+bun run hyc new "标题"       # 新建文章（推荐，已 patch 为常用格式）
+bun run hyc publish "slug"   # 发布文章
+bun run hyc sync             # 同步内容
+bun run hyc serve            # 启动本地 CMS（访问 https://hyc.kaitaku.xyz）
 ```
+
+> ⚠️ `bun install` 后 hyc 的 frontmatter 模板会被还原，需重跑 `bun run scripts/patch-hyc.ts`
+> 详见 `scripts/patch-hyc.ts` — 它将 `hyc new` 生成的模板从旧格式改为 ShokaX 官方格式（date YYYY-MM-DD + updated + description + tags）。
 
 ### 手动写文章
 

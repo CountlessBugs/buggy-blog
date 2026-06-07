@@ -24,7 +24,10 @@ bun run test          # Run unit tests
 bun run check         # Type check
 bun run lint          # Lint
 bun run format        # Format
+bun run hyc new "标题" # 新建文章
 ```
+
+> ⚠️ `bun install` 后 hyc 模板会被覆盖，需重跑 `bun run scripts/patch-hyc.ts`
 
 ## Project Structure
 
