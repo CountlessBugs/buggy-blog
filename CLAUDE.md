@@ -22,16 +22,16 @@ bun run format       # oxfmt 代码格式化
 
 ## 关键文件
 
-| 文件                          | 用途                                               |
-| ----------------------------- | -------------------------------------------------- |
+| 文件                          | 用途                                                |
+| ----------------------------- | --------------------------------------------------- |
 | `src/theme.config.ts`         | 🌟 主题配置（站点信息、布局、侧边栏、评论、友链等） |
-| `src/content.config.ts`       | 内容集合配置                                       |
-| `src/covers.config.ts`        | 封面图片 URL 列表（多图轮播用）                    |
-| `src/components/Images.astro` | 封面预设表 + 头像导入                              |
-| `astro.config.mjs`            | Astro 配置                                         |
-| `hyacine.yml`                 | HyC 配置                                           |
-| `hyacine.plugin.ts`           | HyC 插件配置                                       |
-| `uno.config.ts`               | UnoCSS 配置                                        |
+| `src/content.config.ts`       | 内容集合配置                                        |
+| `src/covers.config.ts`        | 封面图片 URL 列表（多图轮播用）                     |
+| `src/components/Images.astro` | 封面预设表 + 头像导入                               |
+| `astro.config.mjs`            | Astro 配置                                          |
+| `hyacine.yml`                 | HyC 配置                                            |
+| `hyacine.plugin.ts`           | HyC 插件配置                                        |
+| `uno.config.ts`               | UnoCSS 配置                                         |
 
 ## 主题配置指南 (theme.config.ts)
 
