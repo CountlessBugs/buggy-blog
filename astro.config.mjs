@@ -46,7 +46,8 @@ if (themeConfig.diagnostics?.suppressFsWatcherMaxListenersWarning !== false) {
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://preview.astro.kaitaku.xyz",
+  site: "https://countlessbugs.github.io",
+  base: "/buggy-blog/",
   trailingSlash: "always",
   build: {
     format: "directory",
