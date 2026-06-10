@@ -24,6 +24,19 @@ export default defineConfig({
   layout: {
     mode: "two-column",
   },
+  comments: {
+    enable: true,
+    giscus: {
+      repo: "CountlessBugs/buggy-blog",
+      repoId: "R_kgDOSzVsWQ",
+      category: "Comments",
+      categoryId: "DIC_kwDOSzVsWc4C-3t-",
+      mapping: "pathname",
+      lang: "zh-CN",
+      strict: false,
+      inputPosition: "top",
+    },
+  },
   visibilityTitle: {
     enable: false,
   },

@@ -101,8 +101,16 @@ export const DEFAULT_THEME_CONFIG: ShokaXThemeConfig = {
   },
   comments: {
     enable: false,
-    waline: {
-      serverURL: "",
+    giscus: {
+      repo: "",
+      repoId: "",
+      category: "",
+      categoryId: "",
+      mapping: "pathname",
+      strict: true,
+      reactionsEnabled: true,
+      emitMetadata: false,
+      inputPosition: "bottom",
       lang: "zh-CN",
     },
   },

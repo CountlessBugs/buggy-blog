@@ -141,7 +141,7 @@
     "noRecentComments": "暫無留言，快來搶沙發吧～",
     "recentCommentsLoadFailed": "最新留言載入失敗，請稍後再試",
     "commentAnonymous": "匿名使用者",
-    "walineNotConfigured": "Waline 服務位址尚未配置"
+    "commentNotConfigured": "評論服務尚未配置"
   },
   "pagination": {
     "prev": "上一頁",

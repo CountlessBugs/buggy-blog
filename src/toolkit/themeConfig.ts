@@ -197,34 +197,84 @@ interface WidgetsConfig {
   recentCommentsLimit?: number;
 }
 
-interface WalineClientConfig {
+interface GiscusConfig {
   /**
-   * Waline 服务端地址。
-   * - 例如: https://comments.example.com
+   * GitHub 仓库标识。
+   * - 格式: "username/repo"
+   * - 该仓库必须是公开的，且已安装 giscus app
    */
-  serverURL?: string;
+  repo?: string;
 
   /**
-   * 评论语言。
-   * - 留空时由 Waline 根据浏览器语言决定
+   * GitHub 仓库 ID。
+   * - 可从 giscus.app 获取
+   */
+  repoId?: string;
+
+  /**
+   * Discussions 分类名称。
+   * - 例如: "Announcements"
+   */
+  category?: string;
+
+  /**
+   * Discussions 分类 ID。
+   * - 可从 giscus.app 获取
+   */
+  categoryId?: string;
+
+  /**
+   * 页面 ↔ Discussions 映射方式。
+   * - "pathname": 按 pathname 映射（推荐）
+   * - "url": 按完整 URL 映射
+   * - "title": 按页面标题映射
+   * - "og:title": 按 og:title 映射
+   * - "specific": 指定 discussion number
+   * - "number": 指定 discussion term
+   * - 默认: "pathname"
+   */
+  mapping?: string;
+
+  /**
+   * 是否启用严格模式。
+   * - 严格模式下，找不到对应 Discussion 时显示错误
+   * - 默认 true
+   */
+  strict?: boolean;
+
+  /**
+   * 是否启用 Reactions。
+   * - true: 启用 GitHub 表情响应
+   * - 默认 true
+   */
+  reactionsEnabled?: boolean;
+
+  /**
+   * 是否发出父页面元数据。
+   * - 默认 false
+   */
+  emitMetadata?: boolean;
+
+  /**
+   * 评论输入框位置。
+   * - "top": 在评论列表上方
+   * - "bottom": 在评论列表下方
+   * - 默认 "bottom"
+   */
+  inputPosition?: "top" | "bottom";
+
+  /**
+   * 主题。
+   * - 留空时由组件根据 data-theme 自动切换
+   * - 可填写具体主题名覆盖自动行为
+   */
+  theme?: string;
+
+  /**
+   * 界面语言。
+   * - 例如: "zh-CN", "en"
    */
   lang?: string;
-
-  /**
-   * 评论路径。
-   * - 默认为当前 pathname
-   * - 可用于多语言/去尾斜杠等场景统一路径
-   */
-  path?: string;
-
-  /**
-   * 暗黑模式配置。
-   * - false: 关闭
-   * - true: 强制开启
-   * - "auto": 跟随系统
-   * - CSS 选择器: 当选择器命中时启用暗黑模式
-   */
-  dark?: boolean | string;
 }
 
 interface CommentsConfig {
@@ -235,9 +285,11 @@ interface CommentsConfig {
   enable?: boolean;
 
   /**
-   * Waline 客户端配置。
+   * Giscus 评论配置。
+   * - 使用 GitHub Discussions 作为评论存储
+   * - 无需自建后端服务
    */
-  waline?: WalineClientConfig;
+  giscus?: GiscusConfig;
 }
 
 interface NyxPlayerPlaylist {

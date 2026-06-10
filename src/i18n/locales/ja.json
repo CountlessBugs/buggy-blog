@@ -141,7 +141,7 @@
     "noRecentComments": "まだコメントはありません。最初のひとことをどうぞ",
     "recentCommentsLoadFailed": "最新コメントの読み込みに失敗しました。後でもう一度お試しください。",
     "commentAnonymous": "匿名ユーザー",
-    "walineNotConfigured": "Waline のサーバー URL が設定されていません"
+    "commentNotConfigured": "コメントサービスが設定されていません"
   },
   "pagination": {
     "prev": "前へ",

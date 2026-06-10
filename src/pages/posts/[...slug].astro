@@ -6,7 +6,7 @@ import PostFooter from "@/components/post/PostFooter.astro";
 import PostNav from "@/components/post/PostNav.astro";
 import AiSimilarPosts from "@/components/post/AiSimilarPosts.astro";
 import AiSummaryCard from "@/components/post/AiSummaryCard.astro";
-import WalineComments from "@/components/post/WalineComments.svelte";
+import GiscusComments from "@/components/post/GiscusComments.svelte";
 import { currentLocale } from "@/i18n";
 import { getCollection, render } from "astro:content";
 import themeConfig from "@/theme.config";
@@ -206,7 +206,7 @@ const siteConfig = themeConfig.sidebar || {};
 const author = siteConfig.author || "Author";
 const siteName = themeConfig.siteName || "Site";
 const commentsConfig = themeConfig.comments || {};
-const walineConfig = commentsConfig.waline || {};
+const giscusConfig = commentsConfig.giscus || {};
 
 const hycConfig = themeConfig.hyc || {};
 const aiRecommendConfig = hycConfig.aiRecommend || {};
@@ -453,13 +453,19 @@ const postMeta = {
     {
       !isEncrypted && commentsConfig.enable !== false && (
         <div id="comments" class="comment">
-          <WalineComments
+          <GiscusComments
             client:visible
-            serverURL={walineConfig.serverURL}
-            lang={walineConfig.lang || currentLocale}
-            dark={walineConfig.dark}
-            path={walineConfig.path}
-            pagePath={postPath}
+            repo={giscusConfig.repo}
+            repoId={giscusConfig.repoId}
+            category={giscusConfig.category}
+            categoryId={giscusConfig.categoryId}
+            mapping={giscusConfig.mapping}
+            strict={giscusConfig.strict}
+            reactionsEnabled={giscusConfig.reactionsEnabled}
+            emitMetadata={giscusConfig.emitMetadata}
+            inputPosition={giscusConfig.inputPosition}
+            theme={giscusConfig.theme}
+            lang={giscusConfig.lang || currentLocale}
           />
         </div>
       )

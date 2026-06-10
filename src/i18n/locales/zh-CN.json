@@ -141,7 +141,7 @@
     "noRecentComments": "暂无评论，来抢个沙发吧～",
     "recentCommentsLoadFailed": "最新评论加载失败，请稍后重试",
     "commentAnonymous": "匿名用户",
-    "walineNotConfigured": "Waline 服务地址未配置"
+    "commentNotConfigured": "评论服务未配置"
   },
   "pagination": {
     "prev": "上一页",

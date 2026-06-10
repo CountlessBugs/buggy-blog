@@ -3,7 +3,7 @@ import Layout from "@/layouts/Layout.astro";
 import Breadcrumb from "@/components/post/Breadcrumb.astro";
 import PostHeader from "@/components/post/PostHeader.astro";
 import PostFooter from "@/components/post/PostFooter.astro";
-import WalineComments from "@/components/post/WalineComments.svelte";
+import GiscusComments from "@/components/post/GiscusComments.svelte";
 import { currentLocale } from "@/i18n";
 import AboutContent, { frontmatter as aboutFrontmatter } from "@/content/about.mdx";
 import themeConfig from "@/theme.config";
@@ -53,7 +53,7 @@ const siteConfig = themeConfig.sidebar || {};
 const author = siteConfig.author || "Author";
 const siteName = themeConfig.siteName || "Site";
 const commentsConfig = themeConfig.comments || {};
-const walineConfig = commentsConfig.waline || {};
+const giscusConfig = commentsConfig.giscus || {};
 ---
 
 <Layout pageTitle={title}>
@@ -95,13 +95,19 @@ const walineConfig = commentsConfig.waline || {};
   {
     commentsConfig.enable !== false && (
       <div id="comments" class="comment">
-        <WalineComments
+        <GiscusComments
           client:visible
-          serverURL={walineConfig.serverURL}
-          lang={walineConfig.lang || currentLocale}
-          dark={walineConfig.dark}
-          path={walineConfig.path}
-          pagePath={postPath}
+          repo={giscusConfig.repo}
+          repoId={giscusConfig.repoId}
+          category={giscusConfig.category}
+          categoryId={giscusConfig.categoryId}
+          mapping={giscusConfig.mapping}
+          strict={giscusConfig.strict}
+          reactionsEnabled={giscusConfig.reactionsEnabled}
+          emitMetadata={giscusConfig.emitMetadata}
+          inputPosition={giscusConfig.inputPosition}
+          theme={giscusConfig.theme}
+          lang={giscusConfig.lang || currentLocale}
         />
       </div>
     )

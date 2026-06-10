@@ -113,39 +113,16 @@
   }
 
   onMount(() => {
-    let destroyRecentComments: (() => void) | undefined;
-
     // Get random posts
     if (enableRandomPosts && posts.length > 0) {
       randomPosts = shuffle([...posts]).slice(0, 10);
     }
 
-    // Fetch recent comments from Waline
+    // Giscus 无"最新评论"API，该功能仅在 Waline 环境下可用
     if (enableRecentComments && hasWaline) {
-      const loadRecentComments = async () => {
-        const { RecentComments } = await import("@waline/client");
-        try {
-          const result = await RecentComments({
-            serverURL: walineServerURL,
-            count: recentCommentsLimit,
-          });
-          destroyRecentComments = result.destroy;
-          // @ts-expect-error - Waline 的 TS 定义存在问题，此处缺少了对data属性的定义
-          recentComments = (result.comments.data || []).map((comment) =>
-            mapRecentComment(comment),
-          );
-        } catch {
-          loadFailed = true;
-          recentComments = [];
-        }
-      };
-
-      loadRecentComments();
+      loadFailed = true;
+      recentComments = [];
     }
-
-    return () => {
-      destroyRecentComments?.();
-    };
   });
 
   function truncateText(text: string, maxLength: number = 50): string {
