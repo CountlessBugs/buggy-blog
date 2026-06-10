@@ -4,6 +4,7 @@ import MomentsContent from "@/components/MomentsContent.astro";
 import Pagination from "@/components/Pagination.astro";
 import { getCollection } from "astro:content";
 import themeConfig from "@/theme.config";
+import { withBase } from "@/toolkit/path";
 
 // 获取所有动态
 const allMoments = await getCollection("moments");
@@ -22,7 +23,7 @@ const pageMoments = sortedMoments.slice(0, pageSize);
 // 分页导航
 const paginationNavigation = {
   prevUrl: undefined,
-  nextUrl: lastPage > 1 ? "/moments/page/2/" : undefined,
+  nextUrl: lastPage > 1 ? withBase("/moments/page/2/") : undefined,
 };
 
 // 页面标题

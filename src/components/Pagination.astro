@@ -1,6 +1,7 @@
 ---
 import { getT } from "@/i18n";
 import { buildPaginationItems } from "@/toolkit/posts/buildPaginationItems";
+import { withBase } from "@/toolkit/path";
 
 interface Props {
   currentPage: number;
@@ -26,8 +27,8 @@ const safeLast = clampInt(lastPage);
 
 const getHref = (n: number) => {
   const pageNum = clampInt(n);
-  if (pageNum <= 1) return firstPageHref;
-  return `${routePrefix}/${pageNum}/`;
+  if (pageNum <= 1) return withBase(firstPageHref);
+  return withBase(`${routePrefix}/${pageNum}/`);
 };
 
 const prevHref = safeCurrent > 1 ? getHref(safeCurrent - 1) : undefined;

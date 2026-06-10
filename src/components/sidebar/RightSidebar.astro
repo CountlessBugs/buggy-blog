@@ -59,7 +59,7 @@ const normalizedCardOrder = normalizeRightSidebarCardOrder(config.order);
 
 const latestMoments = moments.slice(0, 1).map((moment) => ({
   id: moment.id,
-  href: "/moments/",
+  href: withBase("/moments/"),
   date: moment.data.date,
   excerpt: String(moment.body || "")
     .replaceAll(/<[^>]*>/g, "")
@@ -72,7 +72,7 @@ const shuffledPosts = sampledPost
   ? [
       {
         id: sampledPost.id,
-        href: `/posts/${sampledPost.id}/`,
+        href: withBase(`/posts/${sampledPost.id}/`),
         title: sampledPost.data.title,
         description:
           sampledPost.data.description || String(sampledPost.body || ""),

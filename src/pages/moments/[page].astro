@@ -4,6 +4,7 @@ import MomentsContent from "@/components/MomentsContent.astro";
 import Pagination from "@/components/Pagination.astro";
 import { getCollection } from "astro:content";
 import themeConfig from "@/theme.config";
+import { withBase } from "@/toolkit/path";
 import type { CollectionEntry } from "astro:content";
 import type { GetStaticPaths } from "astro";
 
@@ -36,12 +37,12 @@ const paginationNavigation = {
   prevUrl:
     page.currentPage > 1
       ? page.currentPage === 2
-        ? "/moments/"
-        : `/moments/page/${page.currentPage - 1}/`
+        ? withBase("/moments/")
+        : withBase(`/moments/page/${page.currentPage - 1}/`)
       : undefined,
   nextUrl:
     page.currentPage < page.lastPage
-      ? `/moments/page/${page.currentPage + 1}/`
+      ? withBase(`/moments/page/${page.currentPage + 1}/`)
       : undefined,
 };
 ---

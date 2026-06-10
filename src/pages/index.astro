@@ -4,6 +4,7 @@ import IndexContent from "../components/IndexContent.astro";
 import Pagination from "../components/Pagination.astro";
 import { getCollection } from "astro:content";
 import themeConfig from "@/theme.config";
+import { withBase } from "@/toolkit/path";
 
 // Fetch all posts
 const allPosts = await getCollection("posts");
@@ -32,7 +33,7 @@ const pagePosts = regularPosts.slice(0, pageSize);
 // Build pagination navigation
 const paginationNavigation = {
   prevUrl: undefined,
-  nextUrl: lastPage > 1 ? "/page/2/" : undefined,
+  nextUrl: lastPage > 1 ? withBase("/page/2/") : undefined,
 };
 
 // Build category list with post counts
@@ -70,11 +71,11 @@ const categories = Array.from(categoryMap.entries())
     cover: themeConfig.home?.selectedCategories?.find(
       (cat) => cat.name === name,
     )?.cover,
-    url: `/categories/${name}/`,
+    url: withBase(`/categories/${name}/`),
     postCount: data.posts.length,
     posts: data.posts.slice(0, 6).map((p) => ({
       title: p.title,
-      url: `/posts/${p.slug}/`,
+      url: withBase(`/posts/${p.slug}/`),
     })),
   }))
   .toSorted((a, b) => b.postCount - a.postCount);
