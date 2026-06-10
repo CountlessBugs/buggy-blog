@@ -40,6 +40,10 @@ export default defineConfig({
   visibilityTitle: {
     enable: false,
   },
+  home: {
+    pageSize: 5,
+    selectedCategories: [{ name: "软件工程" }, { name: "乐谱" }],
+  },
   copyright: {
     license: "CC-BY-NC-4.0",
     show: true,
