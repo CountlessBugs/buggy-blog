@@ -26,4 +26,3 @@ cover: ../assets/images/covers_posts/cover_score-aegleseeker.jpg
 # 下载
 
 [📥 下载 PDF](/buggy-blog/score-aegleseeker/score_aegleseeker.pdf)
-

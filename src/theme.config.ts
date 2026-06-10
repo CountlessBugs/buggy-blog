@@ -24,6 +24,9 @@ export default defineConfig({
   layout: {
     mode: "two-column",
   },
+  visibilityTitle: {
+    enable: false,
+  },
   copyright: {
     license: "CC-BY-NC-4.0",
     show: true,
