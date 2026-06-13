@@ -7,6 +7,7 @@ import GiscusComments from "@/components/post/GiscusComments.svelte";
 import { currentLocale } from "@/i18n";
 import AboutContent, { frontmatter as aboutFrontmatter } from "@/content/about.mdx";
 import themeConfig from "@/theme.config";
+import { BASE_URL } from "@/toolkit/path";
 
 import "@/styles/post.css";
 import "@/styles/spoiler.css";
@@ -44,7 +45,7 @@ const updatedDate = frontmatter.updated
   ? parseDate(frontmatter.updated, publishDate)
   : undefined;
 
-const postPath = "/about/";
+const postPath = `${BASE_URL}about/`;
 const permalink = Astro.site
   ? new URL(postPath, Astro.site).toString()
   : postPath;

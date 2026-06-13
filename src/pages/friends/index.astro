@@ -5,13 +5,16 @@ import FriendLinks from "@/components/friends/FriendLinks.astro";
 import FriendRules from "@/content/friends-rules.md";
 import themeConfig from "@/theme.config";
 import astroConfig from "../../../astro.config.mjs";
+import { BASE_URL } from "@/toolkit/path";
 
 const friendsConfig = themeConfig.friends;
 const friendLinks = friendsConfig?.links ?? [];
 const pageTitle = friendsConfig?.title ?? "友链";
 const pageDescription =
   friendsConfig?.description ?? "卡片式展示，支持站点预览与主题色点缀。";
-const siteUrl = Astro.site?.toString() ?? "";
+const siteUrl = Astro.site
+  ? new URL(BASE_URL, Astro.site).toString().replace(/\/$/, "")
+  : "";
 const codeThemes = astroConfig.markdown?.shikiConfig?.themes;
 const friendsSnippet = {
   url: siteUrl,
