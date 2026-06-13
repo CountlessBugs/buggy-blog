@@ -44,6 +44,12 @@ export default defineConfig({
     pageSize: 5,
     selectedCategories: [{ name: "软件工程" }, { name: "乐谱" }],
   },
+  footer: {
+    since: 2026,
+    icp: {
+      enable: false,
+    },
+  },
   copyright: {
     license: "CC-BY-NC-4.0",
     show: true,
