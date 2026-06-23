@@ -5,7 +5,7 @@ export default defineConfig({
   siteName: "Buggy Blog",
   brand: {
     title: "Buggy Blog",
-    subtitle: "一只计算机萌新的个人博客",
+    subtitle: "🎵乐音与代码编织成的世界💻",
     logo: "🐱",
   },
   sidebar: {
@@ -42,7 +42,7 @@ export default defineConfig({
   },
   home: {
     pageSize: 5,
-    selectedCategories: [{ name: "软件工程" }, { name: "乐谱" }],
+    selectedCategories: [{ name: "软件工程" }, { name: "乐理" }, { name: "乐谱" }],
   },
   footer: {
     since: 2026,
