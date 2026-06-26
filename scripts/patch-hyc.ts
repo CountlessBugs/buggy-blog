@@ -1,6 +1,6 @@
 /**
  * Patch hyc new 的 frontmatter 模板，对齐 ShokaX 官方格式。
- * - 日期使用上海时间 (UTC+8)，精确到分钟
+ * - 日期使用上海时间 (UTC+8)，精确到分钟，ISO 8601 +08:00 格式
  * - draft 替换为 cover
  * - 移除正文区自动生成的标题和占位文字
  * 每次 `bun install` 后需要重跑: bun run scripts/patch-hyc.ts
@@ -12,46 +12,50 @@ type Patch = {
   file: string;
   old: string;
   new: string;
-  label: string; // 用于日志
+  label: string;
 };
 
 // ═══════════════════════════════════════════════════════════
 // index.mjs — 内联模板（单行）
 // ═══════════════════════════════════════════════════════════
 
-// 原始 hyc 模板（toISOString，无 updated/description/tags）
+// 原始 hyc（toISOString，无 updated/description/tags）
 const IDX_ORIGINAL =
   "let p=new Date().toISOString(),m=st(i),h=`---\\ntitle: ${ot(n)}\\ndate: ${p}\\ndraft: ${r}\\n${m}\\n---\\n\\n# ${n}\\n\\n在这里开始写作...\\n`;";
 
-// 上一版 patch（上海时间，但有 draft 和正文标题）
+// 上一版 patch（上海时间 空格格式 + cover + 无正文标题）
 const IDX_PREV =
-  'let p=new Date(Date.now()+8*60*60*1000),q=`${p.getUTCFullYear()}-${String(p.getUTCMonth()+1).padStart(2,"0")}-${String(p.getUTCDate()).padStart(2,"0")} ${String(p.getUTCHours()).padStart(2,"0")}:${String(p.getUTCMinutes()).padStart(2,"0")}`,m=st(i),h=`---\\ntitle: ${ot(n)}\\ndate: ${q}\\nupdated: ${q}\\ndescription: ""\\ntags: []\\n${m}\\ndraft: ${r}\\n---\\n\\n# ${n}\\n\\n在这里开始写作...\\n`;';
-
-// 最终模板（上海时间 + cover 替代 draft + 移除正文标题和占位）
-const IDX_FINAL =
   'let p=new Date(Date.now()+8*60*60*1000),q=`${p.getUTCFullYear()}-${String(p.getUTCMonth()+1).padStart(2,"0")}-${String(p.getUTCDate()).padStart(2,"0")} ${String(p.getUTCHours()).padStart(2,"0")}:${String(p.getUTCMinutes()).padStart(2,"0")}`,m=st(i),h=`---\\ntitle: ${ot(n)}\\ndate: ${q}\\nupdated: ${q}\\ndescription: ""\\ntags: []\\n${m}\\ncover: ""\\n---\\n`;';
 
-// ═══════════════════════════════════════════════════════════
-// api.mjs — 分两处：dateStr 生成 + content 模板
-// ═══════════════════════════════════════════════════════════
+// 最终模板（ISO 8601 +08:00 格式）
+const IDX_FINAL =
+  'let p=new Date(Date.now()+8*60*60*1000),q=`${p.getUTCFullYear()}-${String(p.getUTCMonth()+1).padStart(2,"0")}-${String(p.getUTCDate()).padStart(2,"0")}T${String(p.getUTCHours()).padStart(2,"0")}:${String(p.getUTCMinutes()).padStart(2,"0")}+08:00`,m=st(i),h=`---\\ntitle: ${ot(n)}\\ndate: ${q}\\nupdated: ${q}\\ndescription: ""\\ntags: []\\n${m}\\ncover: ""\\n---\\n`;';
 
-// --- dateStr 行（缩进为单个 tab）---
+// ═══════════════════════════════════════════════════════════
+// api.mjs — dateStr 生成
+// ═══════════════════════════════════════════════════════════
 
 // 原始 hyc（仅日期，本地时区）
 const API_DATE_OLD =
   '\tconst now = /* @__PURE__ */ new Date();\n\tconst dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;';
 
-// 上海时间，精确到分钟
-const API_DATE_NEW =
+// 上一版 patch（上海时间 空格格式）
+const API_DATE_PREV =
   '\tconst now = /* @__PURE__ */ new Date(Date.now()+8*60*60*1000);\n\tconst dateStr = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}-${String(now.getUTCDate()).padStart(2, "0")} ${String(now.getUTCHours()).padStart(2, "0")}:${String(now.getUTCMinutes()).padStart(2, "0")}`;';
 
-// --- content 模板行 ---
+// 最终版（ISO 8601 +08:00 格式）
+const API_DATE_FINAL =
+  '\tconst now = /* @__PURE__ */ new Date(Date.now()+8*60*60*1000);\n\tconst dateStr = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}-${String(now.getUTCDate()).padStart(2, "0")}T${String(now.getUTCHours()).padStart(2, "0")}:${String(now.getUTCMinutes()).padStart(2, "0")}+08:00`;';
 
-// 原始 / 上一版（有 draft 和正文标题）
+// ═══════════════════════════════════════════════════════════
+// api.mjs — content 模板行
+// ═══════════════════════════════════════════════════════════
+
+// 原始（有 draft 和正文标题）
 const API_CONTENT_OLD =
   '\tconst content = `---\\ntitle: ${toYamlQuoted(title)}\\ndate: ${dateStr}\\nupdated: ${dateStr}\\ndescription: ""\\ntags: []\\n${categoriesFrontmatter}\\ndraft: ${draft}\\n---\\n\\n# ${title}\\n\\n在这里开始写作...\\n`;';
 
-// 最终版（cover 替代 draft，移除正文标题和占位）
+// 最终（cover 替代 draft，移除正文标题和占位）
 const API_CONTENT_NEW =
   '\tconst content = `---\\ntitle: ${toYamlQuoted(title)}\\ndate: ${dateStr}\\nupdated: ${dateStr}\\ndescription: ""\\ntags: []\\n${categoriesFrontmatter}\\ncover: ""\\n---\\n`;';
 
@@ -63,6 +67,7 @@ const ROOT = resolve(import.meta.dirname, "..");
 const BASE = "node_modules/@hyacine/cli/dist/bun";
 
 const PATCHES: Patch[] = [
+  // index.mjs
   {
     file: `${BASE}/index.mjs`,
     old: IDX_ORIGINAL,
@@ -73,20 +78,22 @@ const PATCHES: Patch[] = [
     file: `${BASE}/index.mjs`,
     old: IDX_PREV,
     new: IDX_FINAL,
-    label: "index.mjs (上版 → 最终)",
+    label: "index.mjs (上版 → +08:00)",
   },
+  // api.mjs dateStr
   {
     file: `${BASE}/api.mjs`,
     old: API_DATE_OLD,
-    new: API_DATE_NEW,
-    label: "api.mjs dateStr (原始 → 上海时间)",
+    new: API_DATE_FINAL,
+    label: "api.mjs dateStr (原始 → +08:00)",
   },
   {
     file: `${BASE}/api.mjs`,
-    old: API_DATE_NEW,
-    new: API_DATE_NEW,
-    label: "api.mjs dateStr (已是上海时间)",
+    old: API_DATE_PREV,
+    new: API_DATE_FINAL,
+    label: "api.mjs dateStr (上版 → +08:00)",
   },
+  // api.mjs content
   {
     file: `${BASE}/api.mjs`,
     old: API_CONTENT_OLD,
