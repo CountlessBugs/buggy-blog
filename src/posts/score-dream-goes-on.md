@@ -1,7 +1,7 @@
 ---
 title: "【乐谱】Dream goes on —— Lanota 新手教程曲 （人声部分）"
-date: 2026-06-06T21:44:00
-updated: 2026-06-06T21:44:00
+date: 2026-06-06T13:44:00Z
+updated: 2026-06-06T13:44:00Z
 description: "Dream goes on 小提琴乐谱分享"
 tags: ["扒谱", "音游曲"]
 categories: ["音乐", "乐谱"]
