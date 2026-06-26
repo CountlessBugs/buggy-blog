@@ -27,9 +27,13 @@ const IDX_ORIGINAL =
 const IDX_PREV =
   'let p=new Date(Date.now()+8*60*60*1000),q=`${p.getUTCFullYear()}-${String(p.getUTCMonth()+1).padStart(2,"0")}-${String(p.getUTCDate()).padStart(2,"0")} ${String(p.getUTCHours()).padStart(2,"0")}:${String(p.getUTCMinutes()).padStart(2,"0")}`,m=st(i),h=`---\\ntitle: ${ot(n)}\\ndate: ${q}\\nupdated: ${q}\\ndescription: ""\\ntags: []\\n${m}\\ncover: ""\\n---\\n`;';
 
-// 最终模板（ISO 8601 +08:00 格式）
-const IDX_FINAL =
+// 上版 patch（ISO +08:00 但无秒 — js-yaml 不识别为 timestamp）
+const IDX_PREV_TZ =
   'let p=new Date(Date.now()+8*60*60*1000),q=`${p.getUTCFullYear()}-${String(p.getUTCMonth()+1).padStart(2,"0")}-${String(p.getUTCDate()).padStart(2,"0")}T${String(p.getUTCHours()).padStart(2,"0")}:${String(p.getUTCMinutes()).padStart(2,"0")}+08:00`,m=st(i),h=`---\\ntitle: ${ot(n)}\\ndate: ${q}\\nupdated: ${q}\\ndescription: ""\\ntags: []\\n${m}\\ncover: ""\\n---\\n`;';
+
+// 最终模板（ISO 8601 含秒 :00+08:00 — js-yaml 可识别为 Date）
+const IDX_FINAL =
+  'let p=new Date(Date.now()+8*60*60*1000),q=`${p.getUTCFullYear()}-${String(p.getUTCMonth()+1).padStart(2,"0")}-${String(p.getUTCDate()).padStart(2,"0")}T${String(p.getUTCHours()).padStart(2,"0")}:${String(p.getUTCMinutes()).padStart(2,"0")}:00+08:00`,m=st(i),h=`---\\ntitle: ${ot(n)}\\ndate: ${q}\\nupdated: ${q}\\ndescription: ""\\ntags: []\\n${m}\\ncover: ""\\n---\\n`;';
 
 // ═══════════════════════════════════════════════════════════
 // api.mjs — dateStr 生成
@@ -43,9 +47,13 @@ const API_DATE_OLD =
 const API_DATE_PREV =
   '\tconst now = /* @__PURE__ */ new Date(Date.now()+8*60*60*1000);\n\tconst dateStr = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}-${String(now.getUTCDate()).padStart(2, "0")} ${String(now.getUTCHours()).padStart(2, "0")}:${String(now.getUTCMinutes()).padStart(2, "0")}`;';
 
-// 最终版（ISO 8601 +08:00 格式）
-const API_DATE_FINAL =
+// 上版 patch（ISO +08:00 但无秒）
+const API_DATE_PREV_TZ =
   '\tconst now = /* @__PURE__ */ new Date(Date.now()+8*60*60*1000);\n\tconst dateStr = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}-${String(now.getUTCDate()).padStart(2, "0")}T${String(now.getUTCHours()).padStart(2, "0")}:${String(now.getUTCMinutes()).padStart(2, "0")}+08:00`;';
+
+// 最终版（ISO 8601 含秒 :00+08:00）
+const API_DATE_FINAL =
+  '\tconst now = /* @__PURE__ */ new Date(Date.now()+8*60*60*1000);\n\tconst dateStr = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}-${String(now.getUTCDate()).padStart(2, "0")}T${String(now.getUTCHours()).padStart(2, "0")}:${String(now.getUTCMinutes()).padStart(2, "0")}:00+08:00`;';
 
 // ═══════════════════════════════════════════════════════════
 // api.mjs — content 模板行
@@ -67,33 +75,49 @@ const ROOT = resolve(import.meta.dirname, "..");
 const BASE = "node_modules/@hyacine/cli/dist/bun";
 
 const PATCHES: Patch[] = [
-  // index.mjs
+  // index.mjs — 原始 → 最终
   {
     file: `${BASE}/index.mjs`,
     old: IDX_ORIGINAL,
     new: IDX_FINAL,
     label: "index.mjs (原始 → 最终)",
   },
+  // index.mjs — 空格格式 → 最终
   {
     file: `${BASE}/index.mjs`,
     old: IDX_PREV,
     new: IDX_FINAL,
-    label: "index.mjs (上版 → +08:00)",
+    label: "index.mjs (空格 → +08:00 含秒)",
   },
-  // api.mjs dateStr
+  // index.mjs — +08:00 缺秒 → +08:00 含秒
+  {
+    file: `${BASE}/index.mjs`,
+    old: IDX_PREV_TZ,
+    new: IDX_FINAL,
+    label: "index.mjs (+08:00 缺秒 → 含秒)",
+  },
+  // api.mjs dateStr — 原始 → 最终
   {
     file: `${BASE}/api.mjs`,
     old: API_DATE_OLD,
     new: API_DATE_FINAL,
-    label: "api.mjs dateStr (原始 → +08:00)",
+    label: "api.mjs dateStr (原始 → +08:00 含秒)",
   },
+  // api.mjs dateStr — 空格格式 → 最终
   {
     file: `${BASE}/api.mjs`,
     old: API_DATE_PREV,
     new: API_DATE_FINAL,
-    label: "api.mjs dateStr (上版 → +08:00)",
+    label: "api.mjs dateStr (空格 → +08:00 含秒)",
   },
-  // api.mjs content
+  // api.mjs dateStr — +08:00 缺秒 → +08:00 含秒
+  {
+    file: `${BASE}/api.mjs`,
+    old: API_DATE_PREV_TZ,
+    new: API_DATE_FINAL,
+    label: "api.mjs dateStr (+08:00 缺秒 → 含秒)",
+  },
+  // api.mjs content — draft → cover
   {
     file: `${BASE}/api.mjs`,
     old: API_CONTENT_OLD,
