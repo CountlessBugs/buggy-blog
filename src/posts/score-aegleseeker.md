@@ -1,7 +1,7 @@
 ---
 title: "【乐谱】Aegelseeker（高潮部分）"
-date: 2026-06-09T15:14:46.478Z
-updated: 2026-06-09T15:14:46.478Z
+date: 2026-06-09 23:14
+updated: 2026-06-09 23:14
 description: "Aegleseeker 高潮部分小提琴乐谱！“And in that light, I find deliverance.”"
 tags: ["扒谱", "音游曲"]
 categories: ["音乐", "乐谱"]

@@ -1,47 +1,125 @@
 /**
  * Patch hyc new 的 frontmatter 模板，对齐 ShokaX 官方格式。
+ * - 日期使用上海时间 (UTC+8)，精确到分钟
+ * - draft 替换为 cover
+ * - 移除正文区自动生成的标题和占位文字
  * 每次 `bun install` 后需要重跑: bun run scripts/patch-hyc.ts
  */
 import { readFileSync, writeFileSync } from "fs";
+import { resolve } from "path";
 
-const TARGETS = [
-  "node_modules/@hyacine/cli/dist/bun/index.mjs",
-  "node_modules/@hyacine/cli/dist/bun/api.mjs",
-];
+type Patch = {
+  file: string;
+  old: string;
+  new: string;
+  label: string; // 用于日志
+};
 
-const OLD_TEMPLATE =
+// ═══════════════════════════════════════════════════════════
+// index.mjs — 内联模板（单行）
+// ═══════════════════════════════════════════════════════════
+
+// 原始 hyc 模板（toISOString，无 updated/description/tags）
+const IDX_ORIGINAL =
   "let p=new Date().toISOString(),m=st(i),h=`---\\ntitle: ${ot(n)}\\ndate: ${p}\\ndraft: ${r}\\n${m}\\n---\\n\\n# ${n}\\n\\n在这里开始写作...\\n`;";
 
-const NEW_TEMPLATE =
-  'let p=new Date(),q=`${p.getFullYear()}-${String(p.getMonth()+1).padStart(2,"0")}-${String(p.getDate()).padStart(2,"0")}T${String(p.getHours()).padStart(2,"0")}:${String(p.getMinutes()).padStart(2,"0")}:${String(p.getSeconds()).padStart(2,"0")}`,m=st(i),h=`---\\ntitle: ${ot(n)}\\ndate: ${q}\\nupdated: ${q}\\ndescription: ""\\ntags: []\\n${m}\\ndraft: ${r}\\n---\\n\\n# ${n}\\n\\n在这里开始写作...\\n`;';
+// 上一版 patch（上海时间，但有 draft 和正文标题）
+const IDX_PREV =
+  'let p=new Date(Date.now()+8*60*60*1000),q=`${p.getUTCFullYear()}-${String(p.getUTCMonth()+1).padStart(2,"0")}-${String(p.getUTCDate()).padStart(2,"0")} ${String(p.getUTCHours()).padStart(2,"0")}:${String(p.getUTCMinutes()).padStart(2,"0")}`,m=st(i),h=`---\\ntitle: ${ot(n)}\\ndate: ${q}\\nupdated: ${q}\\ndescription: ""\\ntags: []\\n${m}\\ndraft: ${r}\\n---\\n\\n# ${n}\\n\\n在这里开始写作...\\n`;';
+
+// 最终模板（上海时间 + cover 替代 draft + 移除正文标题和占位）
+const IDX_FINAL =
+  'let p=new Date(Date.now()+8*60*60*1000),q=`${p.getUTCFullYear()}-${String(p.getUTCMonth()+1).padStart(2,"0")}-${String(p.getUTCDate()).padStart(2,"0")} ${String(p.getUTCHours()).padStart(2,"0")}:${String(p.getUTCMinutes()).padStart(2,"0")}`,m=st(i),h=`---\\ntitle: ${ot(n)}\\ndate: ${q}\\nupdated: ${q}\\ndescription: ""\\ntags: []\\n${m}\\ncover: ""\\n---\\n`;';
+
+// ═══════════════════════════════════════════════════════════
+// api.mjs — 分两处：dateStr 生成 + content 模板
+// ═══════════════════════════════════════════════════════════
+
+// --- dateStr 行（缩进为单个 tab）---
+
+// 原始 hyc（仅日期，本地时区）
+const API_DATE_OLD =
+  '\tconst now = /* @__PURE__ */ new Date();\n\tconst dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;';
+
+// 上海时间，精确到分钟
+const API_DATE_NEW =
+  '\tconst now = /* @__PURE__ */ new Date(Date.now()+8*60*60*1000);\n\tconst dateStr = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}-${String(now.getUTCDate()).padStart(2, "0")} ${String(now.getUTCHours()).padStart(2, "0")}:${String(now.getUTCMinutes()).padStart(2, "0")}`;';
+
+// --- content 模板行 ---
+
+// 原始 / 上一版（有 draft 和正文标题）
+const API_CONTENT_OLD =
+  '\tconst content = `---\\ntitle: ${toYamlQuoted(title)}\\ndate: ${dateStr}\\nupdated: ${dateStr}\\ndescription: ""\\ntags: []\\n${categoriesFrontmatter}\\ndraft: ${draft}\\n---\\n\\n# ${title}\\n\\n在这里开始写作...\\n`;';
+
+// 最终版（cover 替代 draft，移除正文标题和占位）
+const API_CONTENT_NEW =
+  '\tconst content = `---\\ntitle: ${toYamlQuoted(title)}\\ndate: ${dateStr}\\nupdated: ${dateStr}\\ndescription: ""\\ntags: []\\n${categoriesFrontmatter}\\ncover: ""\\n---\\n`;';
+
+// ═══════════════════════════════════════════════════════════
+// 执行
+// ═══════════════════════════════════════════════════════════
+
+const ROOT = resolve(import.meta.dirname, "..");
+const BASE = "node_modules/@hyacine/cli/dist/bun";
+
+const PATCHES: Patch[] = [
+  {
+    file: `${BASE}/index.mjs`,
+    old: IDX_ORIGINAL,
+    new: IDX_FINAL,
+    label: "index.mjs (原始 → 最终)",
+  },
+  {
+    file: `${BASE}/index.mjs`,
+    old: IDX_PREV,
+    new: IDX_FINAL,
+    label: "index.mjs (上版 → 最终)",
+  },
+  {
+    file: `${BASE}/api.mjs`,
+    old: API_DATE_OLD,
+    new: API_DATE_NEW,
+    label: "api.mjs dateStr (原始 → 上海时间)",
+  },
+  {
+    file: `${BASE}/api.mjs`,
+    old: API_DATE_NEW,
+    new: API_DATE_NEW,
+    label: "api.mjs dateStr (已是上海时间)",
+  },
+  {
+    file: `${BASE}/api.mjs`,
+    old: API_CONTENT_OLD,
+    new: API_CONTENT_NEW,
+    label: "api.mjs content (draft → cover)",
+  },
+];
 
 let patched = 0;
-for (const rel of TARGETS) {
-  const filePath = `d:/Projects/Blog/buggy-blog/${rel}`;
+for (const { file, old: OLD, new: NEW, label } of PATCHES) {
+  const filePath = resolve(ROOT, file);
   let content: string;
   try {
     content = readFileSync(filePath, "utf8");
   } catch {
-    console.log(`⏭  ${rel} 不存在，跳过`);
+    console.log(`⏭  ${label}: 文件不存在`);
     continue;
   }
 
-  if (content.includes(NEW_TEMPLATE)) {
-    console.log(`✓ ${rel} 已 patch，跳过`);
+  if (content.includes(NEW)) {
+    console.log(`✓ ${label}: 已是最新，跳过`);
     patched++;
     continue;
   }
 
-  if (content.includes(OLD_TEMPLATE)) {
-    content = content.replace(OLD_TEMPLATE, NEW_TEMPLATE);
+  if (content.includes(OLD)) {
+    content = content.replace(OLD, NEW);
     writeFileSync(filePath, content);
-    console.log(`✅ ${rel} patch 完成`);
+    console.log(`✅ ${label}: patch 完成`);
     patched++;
-  } else if (content.includes("在这里开始写作")) {
-    console.log(`⚠ ${rel}: 找到模板但格式不匹配（版本可能不同），请手动检查`);
   } else {
-    console.log(`⚠ ${rel}: 未找到模板字符串`);
+    console.log(`⚠ ${label}: 未匹配到模板，请手动检查`);
   }
 }
 
-console.log(`\n完成: ${patched}/${TARGETS.length} 个文件已 patch`);
+console.log(`\n完成: ${patched}/${PATCHES.length} 条 patch 已就绪`);

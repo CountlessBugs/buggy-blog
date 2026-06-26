@@ -1,7 +1,7 @@
 ---
 title: "【乐谱】bloom —— 魔法少女的魔女审判终章 ED （人声部分）"
-date: 2026-06-06T12:53:00Z
-updated: 2026-06-10T12:23:00Z
+date: 2026-06-06 20:53
+updated: 2026-06-10 20:23
 description: "bloom 小提琴乐谱分享"
 tags: ["扒谱", "游戏配乐"]
 categories: ["音乐", "乐谱"]
