@@ -4,4 +4,5 @@ databaseDir: .hyacine
 defaultCategories:
 postExtension:
   - .md
+  - .mdx
 assetResolution: standard
